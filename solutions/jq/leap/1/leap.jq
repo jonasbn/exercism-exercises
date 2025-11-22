@@ -1,0 +1,1 @@
+if .year % 4 == 0 then if .year % 100 == 0 and .year % 400 != 0 then false else true end else false end
