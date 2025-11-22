@@ -1,0 +1,42 @@
+## Registers
+
+# | Register | Usage     | Type    | Description                                      |
+# | -------- | --------- | ------- | ------------------------------------------------ |
+# | `$a0`    | input     | integer | year to check                                    |
+# | `$v0`    | output    | boolean | input is leap year (`0` = `false`, `1` = `true`) |
+# | `$t0-9`  | temporary | any     | used for temporary storage                       |
+
+.globl is_leap_year # make function visible to the outside world
+
+.data
+
+false: .word 0
+true: .word 1
+
+.text
+
+is_leap_year:
+        la $t0, ($a0)           # read input (year)
+
+        rem $t1, $t0, 4         # $t1 = year % 4, year must be divisible by 4
+        bne $t1, 0, fail        # branch if not equal to 0 go to fail
+                                # when we have a reminder
+
+        rem $t2, $t0, 100       # $t2 = year % 100, year must be divisible by 100
+        rem $t3, $t0, 400       # $t3 = year % 400, year must be divisible by 400
+
+        neg $t2, $t2            # We invert the numbers
+        neg $t3, $t3            # to work with slti (set less than immediate)
+
+        slti $t2, $t2, 0        # $t4 = 1 if $t2 < 1 else 0
+        slti $t3, $t3, 0        # $t5 = 1 if $t3 < 1 else 0
+
+        bne $t2, $t3, fail      # branch if not equal, go to fail
+                                # else we succeed
+
+        lw $v0, true            # return true (1)
+        jr $ra
+
+fail:
+        lw $v0, false           # return false (0)
+        jr $ra
